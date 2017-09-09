@@ -1,0 +1,74 @@
+//本例题提供核心算法
+//参数说明:
+//LPSTR lpDIBBits    - 指向源DIB图像指针
+//LONG  lWidth       - 源图像宽度（象素数）
+//LONG  lHeight      - 源图像高度（象素数）
+//程序说明:
+//该函数用来对图像进行直方图均衡。
+BOOL WINAPI InteEqualize(LPSTR lpDIBBits, LONG lWidth, LONG lHeight)
+{
+	// 指向源图像的指针
+	unsigned char*	lpSrc;
+	// 临时变量
+	LONG	lTemp;
+	// 循环变量
+	LONG	i;
+	LONG	j;
+	// 灰度映射表
+	BYTE	bMap[256];
+	// 灰度映射表
+	LONG	lCount[256];
+	// 图像每行的字节数
+	LONG	lLineBytes;
+	// 计算图像每行的字节数
+	lLineBytes = WIDTHBYTES(lWidth * 8);
+	// 重置计数为0
+	for (i = 0; i < 256; i ++)
+	{
+		// 清零
+		lCount[i] = 0;
+	}
+	// 计算各个灰度值的计数
+	for (i = 0; i < lHeight; i ++)
+	{
+		for (j = 0; j < lWidth; j ++)
+		{
+			lpSrc = (unsigned char *)lpDIBBits + lLineBytes * i + j;
+			
+			// 计数加1
+			lCount[*(lpSrc)]++;
+		}
+	}
+	
+	// 计算灰度映射表
+	for (i = 0; i < 256; i++)
+	{
+		// 初始为0
+		lTemp = 0;
+		
+		for (j = 0; j <= i ; j++)
+		{
+			lTemp += lCount[j];
+		}
+		
+		// 计算对应的新灰度值
+		bMap[i] = (BYTE) (lTemp * 255 / lHeight / lWidth);
+	}
+	
+	// 每行
+	for(i = 0; i < lHeight; i++)
+	{
+		// 每列
+		for(j = 0; j < lWidth; j++)
+		{
+			// 指向DIB第i行，第j个象素的指针
+			lpSrc = (unsigned char*)lpDIBBits + lLineBytes * (lHeight - 1 - i) + j;
+			
+			// 计算新的灰度值
+			*lpSrc = bMap[*lpSrc];
+		}
+	}
+	
+	// 返回
+	return TRUE;
+}

@@ -1,0 +1,44 @@
+//参数说明:
+//LPSTR lpDIBBits:指向源DIB图像指针
+//LONG  lWidth:源图像宽度（象素数）
+//LONG  lHeight:源图像高度（象素数）
+//BYTE  bThre:阈值
+//程序说明:
+//该函数用来对图像进行阈值变换。对于灰度值小于阈值的象素直接设置
+灰度值为0；灰度值大于阈值的象素直接设置为255。
+BOOL WINAPI ThresholdTrans(LPSTR lpDIBBits, LONG lWidth, LONG lHeight, BYTE bThre)
+{
+	// 指向源图像的指针
+	unsigned char*	lpSrc;
+	// 循环变量
+	LONG	i;
+	LONG	j;
+	// 图像每行的字节数
+	LONG	lLineBytes;
+	// 计算图像每行的字节数
+	lLineBytes = WIDTHBYTES(lWidth * 8);
+	// 每行
+	for(i = 0; i < lHeight; i++)
+	{
+		// 每列
+		for(j = 0; j < lWidth; j++)
+		{
+			// 指向DIB第i行，第j个象素的指针
+			lpSrc = (unsigned char*)lpDIBBits + lLineBytes * (lHeight - 1 - i) + j;
+			
+			// 判断是否小于阈值
+			if ((*lpSrc) < bThre)
+			{
+				// 直接赋值为0
+				*lpSrc = 0;
+			}
+			else
+			{
+				// 直接赋值为255
+				*lpSrc = 255;
+			}
+		}
+	}
+	// 返回
+	return TRUE;
+}
